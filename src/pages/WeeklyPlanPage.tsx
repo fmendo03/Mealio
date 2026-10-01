@@ -20,7 +20,8 @@ interface Props {
 
 // Layout is designed at this width and scaled down uniformly to fit the window
 const DESIGN_WIDTH = 900;
-const FIT_MARGIN = 32;
+const BOTTOM_MARGIN = 40;
+const MIN_HEIGHT_FIT_RATIO = 0.6;
 
 export const WeeklyPlanPage: React.FC<Props> = ({
   ingredients,
@@ -49,10 +50,13 @@ export const WeeklyPlanPage: React.FC<Props> = ({
       const innerW = Math.max(DESIGN_WIDTH, availW);
       inner.style.width = `${innerW}px`;
       const naturalH = inner.offsetHeight;
-      // Fit the controls + week + shopping button block to one screen; the
-      // header above it is scrolled past.
-      const availH = window.innerHeight - FIT_MARGIN;
-      const scale = Math.min(1, availW / innerW, availH / naturalH);
+      const top = wrap.getBoundingClientRect().top + window.scrollY;
+      const availH = window.innerHeight - top - BOTTOM_MARGIN;
+      const widthFit = Math.min(1, availW / innerW);
+      const heightFit = availH / naturalH;
+      // On short screens (e.g. phone sideways) fitting the height would be
+      // microscopic, so fill the width instead and let the page scroll.
+      const scale = heightFit < widthFit * MIN_HEIGHT_FIT_RATIO ? widthFit : Math.min(widthFit, heightFit);
       setFit({
         scale,
         width: innerW,

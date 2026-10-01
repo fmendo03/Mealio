@@ -1,7 +1,5 @@
 .weekly-fit {
   width: 100%;
-  scroll-snap-align: start;
-  scroll-margin-top: 16px;
 }
 
 .weekly-plan-page {
