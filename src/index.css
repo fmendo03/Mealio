@@ -48,3 +48,7 @@ h6 {
 p {
   margin: 0;
 }
+
+html {
+  scroll-snap-type: y proximity;
+}
