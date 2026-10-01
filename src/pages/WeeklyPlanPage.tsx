@@ -1,0 +1,210 @@
+import React from 'react';
+import type { Ingredient, DayMeal, Rule, Category, ShoppingItem } from '../types';
+import {
+  generateWeek,
+  regenerateSingleDay,
+  regenerateSingleComponent,
+  regenerateCookingMethod,
+  applyLeftovers,
+  getShoppingListFromWeek,
+} from '../utils';
+import '../styles/WeeklyPlanPage.css';
+
+interface Props {
+  ingredients: Ingredient[];
+  weeklyMeals: DayMeal[];
+  rules: Rule[];
+  onWeeklyMealsChange: (meals: DayMeal[]) => void;
+  onAddToShoppingList: (items: ShoppingItem[]) => void;
+}
+
+export const WeeklyPlanPage: React.FC<Props> = ({
+  ingredients,
+  weeklyMeals,
+  rules,
+  onWeeklyMealsChange,
+  onAddToShoppingList,
+}) => {
+  // Leftover days copy the last cook-fresh day, so edits must go to that day
+  const sourceDay = (dayIndex: number) => {
+    for (let j = dayIndex; j >= 0; j--) if (weeklyMeals[j].cookFresh) return j;
+    return dayIndex;
+  };
+
+  const handleRandomizeWeek = () => {
+    const newMeals = generateWeek(ingredients, rules);
+    onWeeklyMealsChange(newMeals);
+  };
+
+  const handleRandomizeDay = (dayIndex: number) => {
+    const newMeals = regenerateSingleDay(ingredients, weeklyMeals, sourceDay(dayIndex), rules);
+    onWeeklyMealsChange(newMeals);
+  };
+
+  const handleRandomizeComponent = (dayIndex: number, category: Category) => {
+    const newMeals = regenerateSingleComponent(
+      ingredients,
+      weeklyMeals,
+      sourceDay(dayIndex),
+      category,
+      rules
+    );
+    onWeeklyMealsChange(newMeals);
+  };
+
+  const handleRandomizeCookMethod = (dayIndex: number, category: Category) => {
+    onWeeklyMealsChange(regenerateCookingMethod(weeklyMeals, sourceDay(dayIndex), category));
+  };
+
+  const handleToggleCookFresh = (dayIndex: number) => {
+    const newMeals = [...weeklyMeals];
+    newMeals[dayIndex] = {
+      ...newMeals[dayIndex],
+      cookFresh: !newMeals[dayIndex].cookFresh,
+    };
+    const withLeftovers = applyLeftovers(newMeals);
+    onWeeklyMealsChange(withLeftovers);
+  };
+
+  const handleAddAllToShoppingList = () => {
+    const mealIngredients = getShoppingListFromWeek(weeklyMeals);
+    const shoppingItems: ShoppingItem[] = mealIngredients.map((item, idx) => ({
+      id: `meal-${Date.now()}-${idx}`,
+      name: item.ingredient,
+      category: item.category,
+      checked: false,
+      fromMeal: true,
+    }));
+    onAddToShoppingList(shoppingItems);
+  };
+
+  const mealWithLeftovers = applyLeftovers(weeklyMeals);
+
+  return (
+    <div className="weekly-plan-page">
+      <div className="controls">
+        <button className="btn-primary" onClick={handleRandomizeWeek}>
+          🔀 Randomize Whole Week
+        </button>
+      </div>
+
+      <div className="weekly-grid">
+        {mealWithLeftovers.map((dayMeal, idx) => (
+          <div key={idx} className="day-card">
+            <div className="day-header">
+              <h3>{dayMeal.day}</h3>
+              <label className="cook-fresh-toggle">
+                <input
+                  type="checkbox"
+                  checked={dayMeal.cookFresh}
+                  onChange={() => handleToggleCookFresh(idx)}
+                />
+                <span>{dayMeal.cookFresh ? 'COOK FRESH' : 'leftovers'}</span>
+              </label>
+            </div>
+
+            <div className="meal-components">
+              <div className="component">
+                <div className="component-header">
+                  <span className="label">Protein</span>
+                  <button
+                    className="btn-reroll"
+                    onClick={() => handleRandomizeComponent(idx, 'proteins')}
+                    title="Randomize protein"
+                  >
+                    ↻
+                  </button>
+                </div>
+                <div className="component-value">
+                  {dayMeal.meal.protein.ingredient}
+                  {dayMeal.meal.protein.cookingMethod && (
+                    <span className="cooking-method">
+                      ({dayMeal.meal.protein.cookingMethod})
+                      <button
+                        className="btn-reroll"
+                        onClick={() => handleRandomizeCookMethod(idx, 'proteins')}
+                        title="Randomize cook method"
+                      >
+                        🔥
+                      </button>
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div className="component">
+                <div className="component-header">
+                  <span className="label">Carbs</span>
+                  <button
+                    className="btn-reroll"
+                    onClick={() => handleRandomizeComponent(idx, 'carbs')}
+                    title="Randomize carbs"
+                  >
+                    ↻
+                  </button>
+                </div>
+                <div className="component-value">{dayMeal.meal.carb.ingredient}</div>
+              </div>
+
+              <div className="component">
+                <div className="component-header">
+                  <span className="label">Side</span>
+                  <button
+                    className="btn-reroll"
+                    onClick={() => handleRandomizeComponent(idx, 'sides')}
+                    title="Randomize side"
+                  >
+                    ↻
+                  </button>
+                </div>
+                <div className="component-value">{dayMeal.meal.side.ingredient}</div>
+              </div>
+
+              <div className="component">
+                <div className="component-header">
+                  <span className="label">Veggie</span>
+                  <button
+                    className="btn-reroll"
+                    onClick={() => handleRandomizeComponent(idx, 'veggies')}
+                    title="Randomize veggie"
+                  >
+                    ↻
+                  </button>
+                </div>
+                <div className="component-value">
+                  {dayMeal.meal.veggie.ingredient}
+                  {dayMeal.meal.veggie.cookingMethod && (
+                    <span className="cooking-method">
+                      ({dayMeal.meal.veggie.cookingMethod})
+                      <button
+                        className="btn-reroll"
+                        onClick={() => handleRandomizeCookMethod(idx, 'veggies')}
+                        title="Randomize cook method"
+                      >
+                        🔥
+                      </button>
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <button
+              className="btn-reroll-day"
+              onClick={() => handleRandomizeDay(idx)}
+              title="Randomize entire day"
+            >
+              ↻ Randomize Day
+            </button>
+          </div>
+        ))}
+      </div>
+
+      <div className="bottom-controls">
+        <button className="btn-primary" onClick={handleAddAllToShoppingList}>
+          📋 Add All Ingredients to Shopping List
+        </button>
+      </div>
+    </div>
+  );
+};

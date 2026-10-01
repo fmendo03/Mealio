@@ -1,0 +1,183 @@
+.weekly-plan-page {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.weekly-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-template-rows: auto repeat(4, auto) auto;
+  column-gap: clamp(0.25rem, 1vw, 1rem);
+  row-gap: 0;
+}
+
+.day-card {
+  min-width: 0;
+  background: white;
+  border-radius: 12px;
+  padding: clamp(0.35rem, 1vw, 1rem);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: grid;
+  grid-row: span 6;
+  grid-template-rows: subgrid;
+  row-gap: 0.75rem;
+  font-size: clamp(0.65rem, 1.1vw, 1rem);
+}
+
+.day-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+}
+
+.day-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 1.2em;
+  overflow-wrap: anywhere;
+}
+
+.cook-fresh-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.8em;
+  font-weight: 600;
+  color: #667eea;
+}
+
+.cook-fresh-toggle input[type='checkbox'] {
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+}
+
+.meal-components {
+  display: contents;
+}
+
+.component {
+  background: #f9f9f9;
+  padding: 0.5em;
+  min-width: 0;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+}
+
+.component-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.label {
+  font-weight: 600;
+  color: #667eea;
+  font-size: 0.9rem;
+}
+
+.btn-reroll {
+  background: #e8eef7;
+  color: #667eea;
+  border: 2px solid #667eea;
+  padding: 0.1em 0.4em;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s;
+  font-size: 1em;
+}
+
+.btn-reroll:hover {
+  background: #667eea;
+  color: white;
+}
+
+.component-value {
+  font-size: 1em;
+  color: #333;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.cooking-method {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8em;
+  color: #999;
+  font-weight: normal;
+  margin-top: 0.3rem;
+}
+
+.btn-reroll-day {
+  background: #764ba2;
+  color: white;
+  border: none;
+  padding: 0.5em;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s;
+  font-size: 0.9em;
+  width: 100%;
+}
+
+.btn-reroll-day:hover {
+  background: #6a3f8f;
+  transform: translateY(-1px);
+}
+
+.bottom-controls {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+  .btn-primary {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.95rem;
+  }
+}
+
+.cooking-method .btn-reroll {
+  font-size: 1.25em;
+}
