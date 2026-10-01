@@ -21,6 +21,7 @@ interface Props {
 // Layout is designed at this width and scaled down uniformly to fit the window
 const DESIGN_WIDTH = 900;
 const BOTTOM_MARGIN = 40;
+const MIN_HEIGHT_FIT_RATIO = 0.6;
 
 export const WeeklyPlanPage: React.FC<Props> = ({
   ingredients,
@@ -51,7 +52,11 @@ export const WeeklyPlanPage: React.FC<Props> = ({
       const naturalH = inner.offsetHeight;
       const top = wrap.getBoundingClientRect().top + window.scrollY;
       const availH = window.innerHeight - top - BOTTOM_MARGIN;
-      const scale = Math.min(1, availW / innerW, availH / naturalH);
+      const widthFit = Math.min(1, availW / innerW);
+      const heightFit = availH / naturalH;
+      // On short screens (e.g. phone sideways) fitting the height would be
+      // microscopic, so fill the width instead and let the page scroll.
+      const scale = heightFit < widthFit * MIN_HEIGHT_FIT_RATIO ? widthFit : Math.min(widthFit, heightFit);
       setFit({
         scale,
         width: innerW,
@@ -64,9 +69,15 @@ export const WeeklyPlanPage: React.FC<Props> = ({
     ro.observe(wrap);
     ro.observe(inner);
     window.addEventListener('resize', update);
+    // Safari can report stale sizes right after rotating
+    const onRotate = () => setTimeout(update, 250);
+    window.addEventListener('orientationchange', onRotate);
+    window.visualViewport?.addEventListener('resize', update);
     return () => {
       ro.disconnect();
       window.removeEventListener('resize', update);
+      window.removeEventListener('orientationchange', onRotate);
+      window.visualViewport?.removeEventListener('resize', update);
     };
   }, []);
 
