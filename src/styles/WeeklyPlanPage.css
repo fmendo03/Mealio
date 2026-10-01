@@ -1,4 +1,9 @@
+.weekly-fit {
+  width: 100%;
+}
+
 .weekly-plan-page {
+  transform-origin: top left;
   display: flex;
   flex-direction: column;
   gap: 2rem;
@@ -36,7 +41,7 @@
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   grid-template-rows: auto repeat(4, auto) auto;
-  column-gap: clamp(0.25rem, 1vw, 1rem);
+  column-gap: 0.75rem;
   row-gap: 0;
 }
 
@@ -44,13 +49,13 @@
   min-width: 0;
   background: white;
   border-radius: 12px;
-  padding: clamp(0.35rem, 1vw, 1rem);
+  padding: 0.6rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   display: grid;
   grid-row: span 6;
   grid-template-rows: subgrid;
   row-gap: 0.75rem;
-  font-size: clamp(0.65rem, 1.1vw, 1rem);
+  font-size: 0.9rem;
 }
 
 .day-header {
@@ -136,7 +141,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.8em;
+  font-size: 0.75em;
   color: #999;
   font-weight: normal;
   margin-top: 0.3rem;
@@ -178,6 +183,10 @@
   }
 }
 
+.cooking-method {
+  white-space: nowrap;
+}
+
 .cooking-method .btn-reroll {
-  font-size: 1.25em;
+  font-size: 1em;
 }

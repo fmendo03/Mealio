@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { Ingredient, DayMeal, Rule, Category, ShoppingItem } from '../types';
 import {
   generateWeek,
@@ -18,6 +18,10 @@ interface Props {
   onAddToShoppingList: (items: ShoppingItem[]) => void;
 }
 
+// Layout is designed at this width and scaled down uniformly to fit the window
+const DESIGN_WIDTH = 900;
+const BOTTOM_MARGIN = 40;
+
 export const WeeklyPlanPage: React.FC<Props> = ({
   ingredients,
   weeklyMeals,
@@ -30,6 +34,41 @@ export const WeeklyPlanPage: React.FC<Props> = ({
     for (let j = dayIndex; j >= 0; j--) if (weeklyMeals[j].cookFresh) return j;
     return dayIndex;
   };
+
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const innerRef = useRef<HTMLDivElement>(null);
+  const [fit, setFit] = useState({ scale: 1, width: DESIGN_WIDTH, offset: 0, height: 0 });
+
+  // Scale the whole page uniformly so it fits the window with no scrolling
+  useEffect(() => {
+    const wrap = wrapRef.current;
+    const inner = innerRef.current;
+    if (!wrap || !inner) return;
+    const update = () => {
+      const availW = wrap.clientWidth;
+      const innerW = Math.max(DESIGN_WIDTH, availW);
+      inner.style.width = `${innerW}px`;
+      const naturalH = inner.offsetHeight;
+      const top = wrap.getBoundingClientRect().top + window.scrollY;
+      const availH = window.innerHeight - top - BOTTOM_MARGIN;
+      const scale = Math.min(1, availW / innerW, availH / naturalH);
+      setFit({
+        scale,
+        width: innerW,
+        offset: (availW - innerW * scale) / 2,
+        height: naturalH * scale,
+      });
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(wrap);
+    ro.observe(inner);
+    window.addEventListener('resize', update);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', update);
+    };
+  }, []);
 
   const handleRandomizeWeek = () => {
     const newMeals = generateWeek(ingredients, rules);
@@ -81,7 +120,12 @@ export const WeeklyPlanPage: React.FC<Props> = ({
   const mealWithLeftovers = applyLeftovers(weeklyMeals);
 
   return (
-    <div className="weekly-plan-page">
+    <div className="weekly-fit" ref={wrapRef} style={{ height: fit.height || undefined }}>
+    <div
+      className="weekly-plan-page"
+      ref={innerRef}
+      style={{ width: fit.width, transform: `translateX(${fit.offset}px) scale(${fit.scale})` }}
+    >
       <div className="controls">
         <button className="btn-primary" onClick={handleRandomizeWeek}>
           🔀 Randomize Whole Week
@@ -205,6 +249,7 @@ export const WeeklyPlanPage: React.FC<Props> = ({
           📋 Add All Ingredients to Shopping List
         </button>
       </div>
+    </div>
     </div>
   );
 };
